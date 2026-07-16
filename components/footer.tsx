@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <div className="relative h-40 overflow-hidden *:text-muted-foreground">
+    <div className="relative h-40 overflow-hidden *:text-muted-foreground mt-auto">
       <div className="h-20 w-full flex flex-col md:flex-row items-center justify-between relative px-10">
         <p className="font-medium font-number">© 2026, ALL RIGHT RESERVERD</p>
         <a
