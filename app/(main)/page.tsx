@@ -49,17 +49,21 @@ export default function Home() {
             tinggi.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 px-4">
-            <Button size="lg" className="group w-auto">
-              Mulai Belajar
-              <ChevronRight className="transition-transform group-hover:translate-x-0.5"></ChevronRight>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-background hover:bg-muted w-full sm:w-auto"
-            >
-              Kontak Kami
-            </Button>
+            <a href="/materi">
+              <Button size="lg" className="group w-auto">
+                Mulai Belajar
+                <ChevronRight className="transition-transform group-hover:translate-x-0.5"></ChevronRight>
+              </Button>
+            </a>
+            <a href="https://wa.me/6282143322393" target="_blank">
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-background hover:bg-muted w-full sm:w-auto"
+              >
+                Kontak Kami
+              </Button>
+            </a>
           </div>
         </div>
       </div>
