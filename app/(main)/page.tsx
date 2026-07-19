@@ -50,7 +50,7 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 px-4">
             <a href="/materi">
-              <Button size="lg" className="group w-auto">
+              <Button size="lg" className="group w-full sm:w-auto">
                 Mulai Belajar
                 <ChevronRight className="transition-transform group-hover:translate-x-0.5"></ChevronRight>
               </Button>
