@@ -81,6 +81,16 @@ const materi: MateriItem[] = [
       "Praktik pengembangan aplikasi tepat guna berbasis Array dan pemrograman Java dalam kehidupan sehari-hari.",
     href: "materi/1/praktik-lintas",
   },
+  {
+    image: "/materi/1/literasi-digital_files/thumbnail.jpg",
+    alt: "Literasi Digital",
+    badge: "Kelas X",
+    grade: "1",
+    title: "Literasi Digital",
+    description:
+      "Keterampilan memproduksi, menyebarkan, dan memahami etika konten digital serta pelabelan informasi secara bertanggung jawab.",
+    href: "materi/1/literasi-digital",
+  },
 ];
 
 export default function Materi() {

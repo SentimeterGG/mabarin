@@ -242,7 +242,7 @@
 }
 
 .prose :where(h1):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  @apply text-xl sm:text-2xl md:text-3xl;
+  @apply text-xl sm:text-2xl md:text-3xl mb-0.5;
   line-height: 1.2;
 }
 

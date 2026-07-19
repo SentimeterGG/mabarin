@@ -40,7 +40,7 @@ export default function MateriCard({
           <Badge variant="secondary">{badge}</Badge>
         </CardAction>
         <CardTitle>{title}</CardTitle>
-        <CardDescription className="text-base">{description}</CardDescription>
+        <CardDescription className="text-base line-clamp-3">{description}</CardDescription>
       </CardHeader>
       <CardFooter className="mt-auto">
         <a href={href} className="w-full">
