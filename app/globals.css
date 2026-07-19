@@ -112,7 +112,7 @@
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
     --muted-foreground: oklch(0.708 0 0);
-    --accent: okhttps://vercel.com/oauth/device?user_code=XVVT-BGPSlch(0.269 0 0);
+    --accent: okhttps: / / vercel.com / oauth / device?user_code=XVVT-BGPSlch(0.269 0 0);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
     --border: oklch(1 0 0 / 10%);
@@ -217,7 +217,6 @@
   h5 {
     @apply text-tiny sm:text-sm md:text-base;
   }
-
 }
 
 .prose:not(:where([class~="not-prose"], [class~="not-prose"] *)) {
@@ -252,17 +251,17 @@
 }
 
 .prose :where(h3):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  @apply text-base sm:text-md md:text-xl;
+  @apply text-md md:text-xl;
   line-height: 1.2;
 }
 
 .prose :where(h4):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  @apply text-sm sm:text-base md:text-lg;
+  @apply text-base md:text-lg;
   line-height: 1.2;
 }
 
 .prose :where(h5):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  @apply text-tiny sm:text-sm md:text-base;
+  @apply text-base;
   line-height: 1.2;
 }
 
