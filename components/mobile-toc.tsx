@@ -7,15 +7,9 @@ import { useMobileToc } from "@/components/mobile-toc-context";
 
 interface TocItem {
   title: string;
+  id: string;
   level: number;
   children: TocItem[];
-}
-
-function slugify(title: string) {
-  return title
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-");
 }
 
 export default function MobileToc({ toc }: { toc: TocItem[] }) {
@@ -49,42 +43,58 @@ export default function MobileToc({ toc }: { toc: TocItem[] }) {
           </button>
         </div>
         <nav className="flex flex-col">
-          {toc.map((section) =>
-            section.children.length > 0 ? (
-              <Collapsible key={section.title}>
-                <CollapsibleTrigger className="group w-full border-b border-border px-4 py-3 cursor-pointer">
-                  <div className="grid grid-cols-[1fr_auto] text-left">
-                    {section.title}
-                    <ChevronDown className="w-5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                  </div>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="pt-1">
-                  {section.children.map((child) => (
-                    <div key={child.title} className="px-8 py-2">
-                      <a
-                        href={`#${slugify(child.title)}`}
-                        onClick={() => setOpen(false)}
-                        className="text-base text-muted-foreground hover:text-primary transition"
-                      >
-                        {child.title}
-                      </a>
-                    </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
-            ) : (
-              <a
-                key={section.title}
-                href={`#${slugify(section.title)}`}
-                onClick={() => setOpen(false)}
-                className="block w-full border-b border-border px-4 py-3 text-left transition"
-              >
-                {section.title}
-              </a>
-            ),
-          )}
+          <MobileTocItems items={toc} depth={0} onClose={() => setOpen(false)} />
         </nav>
       </aside>
     </div>
+  );
+}
+
+function MobileTocItems({
+  items,
+  depth,
+  onClose,
+}: {
+  items: TocItem[];
+  depth: number;
+  onClose: () => void;
+}) {
+  const isTop = depth === 0;
+
+  return (
+    <>
+      {items.map((item) =>
+        item.children.length > 0 ? (
+          <Collapsible key={item.id}>
+            <CollapsibleTrigger
+              className={cn(
+                "group w-full border-b border-border cursor-pointer",
+                isTop ? "px-4 py-3" : "px-8 py-2 text-muted-foreground",
+              )}
+            >
+              <div className="grid grid-cols-[1fr_auto] text-left">
+                {item.title}
+                <ChevronDown className="w-5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent className={cn("pt-1", depth >= 1 && "ml-5")}>
+              <MobileTocItems items={item.children} depth={depth + 1} onClose={onClose} />
+            </CollapsibleContent>
+          </Collapsible>
+        ) : (
+          <a
+            key={item.id}
+            href={`#${item.id}`}
+            onClick={onClose}
+            className={cn(
+              "block w-full border-b border-border text-left transition",
+              isTop ? "px-4 py-3" : "px-8 py-2 text-muted-foreground hover:text-primary",
+            )}
+          >
+            {item.title}
+          </a>
+        ),
+      )}
+    </>
   );
 }

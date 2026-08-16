@@ -234,6 +234,12 @@
   --tw-prose-pre-bg: transparent;
   --tw-prose-th-borders: var(--foreground);
   --tw-prose-td-borders: var(--foreground);
+  --tw-prose-links: var(--primary);
+}
+
+.prose :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  color: var(--primary);
+  text-decoration: none;
 }
 
 .prose :where(h1, h2, h3, h4, h5, h6):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
@@ -265,13 +271,71 @@
   line-height: 1.2;
 }
 
-.prose
-  :where(p, li, ol, ul, blockquote, code, pre):not(
-    :where([class~="not-prose"], [class~="not-prose"] *)
-  ) {
-  line-height: 1.6;
+.prose :where(tbody tr:nth-child(even)):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  background: color-mix(in oklab, var(--muted) 55%, transparent);
 }
 
 .prose :where(strong):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
   font-weight: 600;
+}
+
+.prose :where(table):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  font-size: 0.875rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.prose :where(thead th):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  background: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  padding: 0.625rem 0.875rem;
+  border-right: 1px solid var(--border);
+}
+
+.prose :where(tbody td):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  padding: 0.5rem 0.875rem;
+  vertical-align: top;
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.prose
+  :where(thead th:last-child, tbody td:last-child):not(
+    :where([class~="not-prose"], [class~="not-prose"] *)
+  ) {
+  border-right: 0;
+}
+
+.prose
+  :where(thead th:first-child, tbody td:first-child):not(
+    :where([class~="not-prose"], [class~="not-prose"] *)
+  ) {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.prose :where(tbody tr:nth-child(even)):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  background: color-mix(in oklab, var(--muted) 55%, transparent);
+}
+
+.prose
+  :where(.prose-figure-caption, figcaption):not(
+    :where([class~="not-prose"], [class~="not-prose"] *)
+  ) {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.prose :where(.prose-sumber):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  margin-top: 0rem;
+  font-size: 0.825rem;
+  color: var(--muted-foreground);
 }

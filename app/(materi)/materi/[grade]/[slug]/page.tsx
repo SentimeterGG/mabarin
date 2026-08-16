@@ -22,6 +22,23 @@ function slugify(title: string) {
     .replace(/\s+/g, "-");
 }
 
+type TocItem = {
+  title: string;
+  id: string;
+  level: number;
+  children: TocItem[];
+};
+
+function createSlugger() {
+  const seen = new Map<string, number>();
+  return (title: string) => {
+    const base = slugify(title);
+    const count = seen.get(base) ?? 0;
+    seen.set(base, count + 1);
+    return count === 0 ? base : `${base}-${count}`;
+  };
+}
+
 function getMateriBySlug(grade: string, slug: string) {
   const filePath = path.join(process.cwd(), "app/materi", grade, `${slug}.md`);
 
@@ -31,48 +48,57 @@ function getMateriBySlug(grade: string, slug: string) {
 
   const raw = fs.readFileSync(filePath, "utf-8");
 
-  type TocItem = {
-    title: string;
-    level: number;
-    children: TocItem[];
-  };
-
   const toc: TocItem[] = [];
 
-  let currentH2: TocItem | null = null;
+  const tocSlugger = createSlugger();
 
-  const headingRegex = /^(#{2,3})\s+(.+)$/gm;
+  const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+
+  const stack: { level: number; item: TocItem }[] = [];
 
   let match;
 
   while ((match = headingRegex.exec(raw)) !== null) {
     const level = match[1].length;
     const title = match[2];
+    const id = tocSlugger(title);
 
-    if (level === 2) {
-      currentH2 = {
-        title,
-        level,
-        children: [],
-      };
+    if (level === 1) continue;
 
-      toc.push(currentH2);
-    } else if (level === 3 && currentH2) {
-      currentH2.children.push({
-        title,
-        level,
-        children: [],
-      });
+    const item: TocItem = { title, id, level, children: [] };
+
+    while (stack.length > 0 && stack[stack.length - 1].level >= level) {
+      stack.pop();
     }
+
+    if (stack.length === 0) {
+      toc.push(item);
+    } else {
+      stack[stack.length - 1].item.children.push(item);
+    }
+
+    stack.push({ level, item });
   }
+
+  const renderSlugger = createSlugger();
 
   const html = marked
     .use({
       renderer: {
         heading(token: Tokens.Heading) {
-          const id = slugify(token.text);
+          const id = renderSlugger(token.text);
           const text = this.parser.parseInline(token.tokens);
           return `<h${token.depth} id="${id}">${text}</h${token.depth}>\n`;
+        },
+        paragraph(token: Tokens.Paragraph) {
+          const text = this.parser.parseInline(token.tokens);
+          if (/^Sumber\s*:/i.test(token.text.trim())) {
+            return `<p class="prose-sumber">${text}</p>\n`;
+          }
+          if (/^Gambar\s*\d/i.test(token.text.trim())) {
+            return `<p class="prose-figure-caption">${text}</p>\n`;
+          }
+          return `<p>${text}</p>\n`;
         },
       },
     })
@@ -80,6 +106,57 @@ function getMateriBySlug(grade: string, slug: string) {
   const title = toc[0] ?? slug.replace(/-/g, " ");
 
   return { title, html, toc };
+}
+
+function SidebarToc({ items, depth }: { items: TocItem[]; depth: number }) {
+  const isTop = depth === 0;
+
+  const pad = isTop
+    ? "px-4 py-3"
+    : cn(
+        "py-2 pr-4 text-muted-foreground",
+        ["pl-8", "pl-12", "pl-16", "pl-20"][Math.min(depth - 1, 3)],
+      );
+
+  return (
+    <>
+      {items.map((item) =>
+        item.children.length > 0 ? (
+          <Collapsible key={item.id}>
+            <CollapsibleTrigger
+              className={cn("group w-full border-b border-border cursor-pointer", pad)}
+            >
+              <div className="grid grid-cols-[1fr_auto] text-left">
+                {item.title}
+                <ChevronDown className="w-10 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent
+              className={cn(
+                "text-popover-foreground outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+              )}
+            >
+              <div className="min-h-0">
+                <SidebarToc items={item.children} depth={depth + 1} />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        ) : (
+          <a
+            key={item.id}
+            href={`#${item.id}`}
+            className={cn(
+              "block w-full border-b border-border text-left transition",
+              pad,
+              !isTop && "hover:text-primary",
+            )}
+          >
+            {item.title}
+          </a>
+        ),
+      )}
+    </>
+  );
 }
 
 export default async function MateriDetail({ params }: PageProps) {
@@ -102,44 +179,7 @@ export default async function MateriDetail({ params }: PageProps) {
         <aside className="hidden lg:block w-90 shrink-0 sticky top-0 max-h-screen overflow-y-auto border-r border-l border-border">
           <p className="mt-24 font-semibold mb-4 ml-4">SUB BAB</p>
           <nav className="flex flex-col">
-            {materi.toc.map((section) =>
-              section.children.length > 0 ? (
-                <Collapsible key={section.title}>
-                  <CollapsibleTrigger className="group w-full border-b border-border px-4 py-3 cursor-pointer">
-                    <div className="grid grid-cols-[1fr_auto] text-left">
-                      {section.title}
-                      <ChevronDown className="w-10 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                    </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent
-                    className={cn(
-                      "text-popover-foreground outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 pt-3",
-                    )}
-                  >
-                    <div className="min-h-0">
-                      {section.children.map((child) => (
-                        <div key={child.title} className="px-8 py-2">
-                          <a
-                            href={`#${slugify(child.title)}`}
-                            className="text-base text-muted-foreground hover:text-primary transition"
-                          >
-                            {child.title}
-                          </a>
-                        </div>
-                      ))}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              ) : (
-                <a
-                  key={section.title}
-                  href={`#${slugify(section.title)}`}
-                  className="block w-full border-b border-border px-4 py-3 text-left transition"
-                >
-                  {section.title}
-                </a>
-              ),
-            )}
+            <SidebarToc items={materi.toc} depth={0} />
           </nav>
         </aside>
 
@@ -150,7 +190,7 @@ export default async function MateriDetail({ params }: PageProps) {
               Materi
             </Badge>
             <div
-              className="prose max-w-none prose-img:w-full prose-img:aspect-auto"
+              className="prose max-w-none prose-img:w-full prose-img:aspect-auto prose-p:text-justify"
               dangerouslySetInnerHTML={{ __html: materi.html }}
             />
           </div>
