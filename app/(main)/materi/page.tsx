@@ -91,6 +91,36 @@ const materi: MateriItem[] = [
       "Keterampilan memproduksi, menyebarkan, dan memahami etika konten digital serta pelabelan informasi secara bertanggung jawab.",
     href: "materi/1/literasi-digital",
   },
+  {
+    image: "/materi/1/sejarah-x-1_assets/Gambar_1.2.png",
+    alt: "Menelusuri Peradaban Awal di Kepulauan Indonesia",
+    badge: "Kelas X",
+    grade: "1",
+    title: "Sejarah Indonesia X Bab 1",
+    description:
+      "Perjalanan sejarah Indonesia sebelum mengenal tulisan, terbentuknya Kepulauan Indonesia, serta kehidupan manusia purba di Nusantara.",
+    href: "materi/1/sejarah-x-1",
+  },
+  {
+    image: "/materi/1/sejarah-x-2_assets/10_SEJARAH_BUKU_SISWA.pdf-0103-02.png",
+    alt: "Pedagang, Penguasa dan Pujangga pada Masa Klasik (Hindu-Buddha)",
+    badge: "Kelas X",
+    grade: "1",
+    title: "Sejarah Indonesia X Bab 2",
+    description:
+      "Lahirnya agama Hindu-Buddha, masuknya pengaruh ke Nusantara, serta kerajaan-kerajaan pada masa klasik seperti Kutai, Tarumanegara, dan Sriwijaya.",
+    href: "materi/1/sejarah-x-2",
+  },
+  {
+    image: "/materi/1/sejarah-x-3_assets/10_SEJARAH_BUKU_SISWA.pdf-0146-06.png",
+    alt: "Islamisasi dan Silang Budaya di Nusantara",
+    badge: "Kelas X",
+    grade: "1",
+    title: "Sejarah Indonesia X Bab 3",
+    description:
+      "Kedatangan Islam ke Nusantara, jaringan perdagangan antarpulau, kerajaan-kerajaan Islam, serta akulturasi dan perkembangan budaya Islam.",
+    href: "materi/1/sejarah-x-3",
+  },
 ];
 
 export default function Materi() {
