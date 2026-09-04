@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Raleway, JetBrains_Mono, Inter } from "next/font/google";
+import { JetBrains_Mono, Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
-const raleway = Raleway({
+const raleway = Manrope({
   subsets: ["latin"],
   variable: "--font-sans",
 });
@@ -47,7 +48,26 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <main className="flex flex-col min-h-screen">{children}</main>
+        <Toaster />
       </body>
     </html>
   );
 }
+// page.tsx
+// import { createClient } from '@/utils/supabase/server'
+// import { cookies } from 'next/headers'
+//
+// export default async function Page() {
+//   const cookieStore = await cookies()
+//   const supabase = createClient(cookieStore)
+//
+//   const { data: todos } = await supabase.from('todos').select()
+//
+//   return (
+//     <ul>
+//       {todos?.map((todo) => (
+//         <li key={todo.id}>{todo.name}</li>
+//       ))}
+//     </ul>
+//   )
+// }

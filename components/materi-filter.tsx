@@ -14,6 +14,7 @@ import {
 import { X } from "lucide-react";
 
 export interface MateriItem {
+  id: number;
   title: string;
   description: string;
   image: string;
@@ -31,7 +32,7 @@ const FILTERS = [
 
 const VALID_GRADES: string[] = FILTERS.map((f) => f.grade);
 
-export default function MateriFilter({ materi }: { materi: MateriItem[] }) {
+export default function MateriFilter({ materi, admin }: { materi: MateriItem[]; admin?: boolean }) {
   const [active, setActive] = useState<string>("all");
 
   useEffect(() => {
@@ -87,12 +88,14 @@ export default function MateriFilter({ materi }: { materi: MateriItem[] }) {
           filtered.map((item) => (
             <MateriCard
               key={item.href}
+              id={item.id}
               image={item.image}
               alt={item.alt}
               badge={item.badge}
               title={item.title}
               description={item.description}
               href={item.href}
+              admin={admin}
             />
           ))
         ) : (

@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { X, Plus } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { X, Plus, Upload } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { resolveImageSrc } from "@/lib/storage-paths";
+import { uploadImageToTemp } from "@/lib/upload-temp";
 
 export interface SaveData {
   title: string;
@@ -18,6 +21,13 @@ interface SaveModalProps {
   onClose: () => void;
   onSave: (data: SaveData) => void;
   content: string;
+  initialData?: {
+    title: string;
+    description: string;
+    image: string;
+    grade: number;
+    tags: string[];
+  };
 }
 
 function slugify(title: string) {
@@ -29,13 +39,40 @@ function slugify(title: string) {
     .trim();
 }
 
-export default function SaveModal({ onClose, onSave, content }: SaveModalProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
-  const [cls, setCls] = useState("1");
+export default function SaveModal({ onClose, onSave, content, initialData }: SaveModalProps) {
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [description, setDescription] = useState(initialData?.description ?? "");
+  const [image, setImage] = useState(initialData?.image ?? "");
+  const [cls, setCls] = useState(String(initialData?.grade ?? "1"));
   const [tagInput, setTagInput] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
+  const [isUploading, setIsUploading] = useState(false);
+  const thumbInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      // Same temp/upload/ semantics as content images (60-min TTL,
+      // same-name silent overwrite); promoted to thumbnail.* on save.
+      setImage(await uploadImageToTemp(file));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload gagal.";
+      toast.error("Upload thumbnail gagal.", { description: message });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const addTag = () => {
     const tag = tagInput.trim();
@@ -65,19 +102,15 @@ export default function SaveModal({ onClose, onSave, content }: SaveModalProps) 
 
   const slug = title.trim() ? slugify(title) : "...";
 
+  const previewSrc = image.trim() ? resolveImageSrc(image.trim(), Number(cls)) : "";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-card rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 ring-1 ring-border">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold">Simpan Materi</h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg hover:bg-muted transition-colors"
-          >
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-muted transition-colors">
             <X className="size-4" />
           </button>
         </div>
@@ -100,9 +133,7 @@ export default function SaveModal({ onClose, onSave, content }: SaveModalProps) 
           </div>
 
           <div>
-            <label className="block text-base font-medium mb-1.5">
-              Deskripsi
-            </label>
+            <label className="block text-base font-medium mb-1.5">Deskripsi</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -114,15 +145,51 @@ export default function SaveModal({ onClose, onSave, content }: SaveModalProps) 
 
           <div>
             <label className="block text-base font-medium mb-1.5">
-              URL Gambar
+              URL Gambar (thumbnail)
             </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={image}
+                onChange={(e) => setImage(e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-ring/50"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="shrink-0"
+                disabled={isUploading}
+                onClick={() => thumbInputRef.current?.click()}
+              >
+                <Upload className="size-4" />
+                {isUploading ? "…" : "Upload"}
+              </Button>
+            </div>
             <input
-              type="text"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-ring/50"
+              ref={thumbInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleThumbnailUpload}
+              className="hidden"
             />
+            {previewSrc && (
+              <div className="relative mt-2">
+                <img
+                  src={previewSrc}
+                  alt="Pratinjau thumbnail"
+                  className="aspect-video w-full rounded-lg border border-border object-cover bg-muted"
+                />
+                <button
+                  type="button"
+                  onClick={() => setImage("")}
+                  aria-label="Hapus gambar"
+                  className="absolute top-2 right-2 p-1 rounded-lg bg-black/60 text-white hover:bg-black/80 transition-colors"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            )}
           </div>
 
           <div>
@@ -154,12 +221,7 @@ export default function SaveModal({ onClose, onSave, content }: SaveModalProps) 
                 placeholder="Ketik tag lalu Enter"
                 className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-ring/50"
               />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={addTag}
-              >
+              <Button type="button" variant="outline" size="icon" onClick={addTag}>
                 <Plus className="size-4" />
               </Button>
             </div>

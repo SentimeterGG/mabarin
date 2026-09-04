@@ -1,17 +1,20 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import LoginForm from "./login-form";
 
-export default async function LoginPage() {
+export default async function EditorLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
   const { data: claims } = await supabase.auth.getClaims();
 
-  if (claims) {
-    redirect("/app/editor");
+  if (!claims) {
+    redirect("/login");
   }
 
-  return <LoginForm />;
+  return <>{children}</>;
 }

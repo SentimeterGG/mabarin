@@ -112,7 +112,7 @@
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
     --muted-foreground: oklch(0.708 0 0);
-    --accent: okhttps: / / vercel.com / oauth / device?user_code=XVVT-BGPSlch(0.269 0 0);
+    --accent: oklch(0.269 0 0);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
     --border: oklch(1 0 0 / 10%);
@@ -338,4 +338,38 @@
   margin-top: 0rem;
   font-size: 0.825rem;
   color: var(--muted-foreground);
+}
+
+/* Markdown image loading skeleton (see lib/markdown-image.ts).
+   The wrapper shows a pulsing placeholder until the <img> fires
+   load/error, which flips .is-loaded and fades the image in. */
+.md-img {
+  position: relative;
+}
+.md-img img {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.md-img.is-loaded img {
+  opacity: 1;
+}
+.md-img:not(.is-loaded) {
+  min-height: 12rem;
+}
+.md-img:not(.is-loaded)::before {
+  content: "";
+  position: absolute;
+  inset: 1rem;
+  border-radius: 0.5rem;
+  background: var(--muted);
+  animation: md-img-pulse 1.6s ease-in-out infinite;
+}
+@keyframes md-img-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }

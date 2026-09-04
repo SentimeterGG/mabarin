@@ -11,8 +11,12 @@ import {
   Minus,
   Table,
   ChevronDown,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
+import { logout } from "@/app/app/editor/actions";
+import ImageSourceDialog from "@/components/editor/image-source-dialog";
 
 interface Ingredient {
   id: string;
@@ -99,26 +103,37 @@ const ingredients: IngredientCategory[] = [
   },
 ];
 
-export default function IngredientSidebar({
-  onInsert,
-}: {
-  onInsert: (markdown: string) => void;
-}) {
-  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(
-    { Konten: true, Layout: true },
-  );
+export default function IngredientSidebar({ onInsert }: { onInsert: (markdown: string) => void }) {
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
+    Konten: true,
+    Layout: true,
+  });
+  const [showImageDialog, setShowImageDialog] = useState(false);
 
   const toggleCategory = (category: string) => {
     setOpenCategories((prev) => ({ ...prev, [category]: !prev[category] }));
+  };
+
+  // The "Gambar" ingredient opens the same popup as the toolbar image
+  // button: choose upload-a-file or paste-an-image-link.
+  const handleItemClick = (item: Ingredient) => {
+    if (item.id === "image") {
+      setShowImageDialog(true);
+      return;
+    }
+    onInsert(item.markdown);
+  };
+
+  const handleInsertImage = (markdown: string) => {
+    onInsert(markdown);
+    setShowImageDialog(false);
   };
 
   return (
     <aside className="hidden lg:flex w-72 shrink-0 flex-col border-r border-border h-full bg-card">
       <div className="p-4 border-b border-border">
         <h2 className="font-semibold text-base">Ingredients</h2>
-        <p className="text-base text-muted-foreground mt-0.5">
-          Klik untuk menyisipkan ke editor
-        </p>
+        <p className="text-base text-muted-foreground mt-0.5">Klik untuk menyisipkan ke editor</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-1">
@@ -142,7 +157,7 @@ export default function IngredientSidebar({
                 {cat.items.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => onInsert(item.markdown)}
+                    onClick={() => handleItemClick(item)}
                     className="flex items-center gap-2.5 w-full p-2 rounded-lg text-left hover:bg-muted transition-colors group"
                   >
                     <div className="flex items-center justify-center size-8 rounded-md bg-muted group-hover:bg-primary/10 transition-colors shrink-0">
@@ -150,9 +165,7 @@ export default function IngredientSidebar({
                     </div>
                     <div className="min-w-0">
                       <p className="text-base font-medium truncate">{item.name}</p>
-                      <p className="text-base text-muted-foreground truncate">
-                        {item.description}
-                      </p>
+                      <p className="text-base text-muted-foreground truncate">{item.description}</p>
                     </div>
                   </button>
                 ))}
@@ -161,6 +174,15 @@ export default function IngredientSidebar({
           </div>
         ))}
       </div>
+      <form action={logout}>
+        <Button type="submit" className="mb-5 mx-5 w-[calc(100%-2.5rem)]" variant="destructive">
+          <LogOut className="size-4" />
+          Logout
+        </Button>
+      </form>
+      {showImageDialog && (
+        <ImageSourceDialog onClose={() => setShowImageDialog(false)} onInsert={handleInsertImage} />
+      )}
     </aside>
   );
 }

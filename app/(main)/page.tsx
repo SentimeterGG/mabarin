@@ -38,7 +38,7 @@ export default function Home() {
         </div>
         <div className="*:text-center">
           <p className="text-muted-foreground font-semibold">THE INFORMATICS ARCHIVE</p>
-          <h1 className="text-center mb-5 font-bold">
+          <h1 className="text-center mb-5 font-bold" style={{ letterSpacing: "-0.2rem" }}>
             Tempat anda untuk Kualitas
             <br />
             <span className="text-primary">Design & Informatika</span>

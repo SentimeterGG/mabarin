@@ -1,0 +1,37 @@
+TODO LIST
+=========
+
+[x] 1. FIX SAVING MATERIALS
+      - Code side done: editor layout requires login (app/app/editor/layout.tsx),
+        session refresh wired via proxy.ts (Next 16 convention).
+      - STILL NEEDED on live Supabase project: apply supabase/materials.sql
+        (policies + GRANTs) and verify save works when logged in.
+
+[x] 2. HANDLE COPIED RESOURCE IN SUPABASE
+      - Done in code: temp/upload/ uploads use upsert (same-name silently
+        overwrites), 60-min TTL enforced by /api/cron/cleanup-temp
+        (Vercel cron every 10 min, see vercel.json) via the Storage API.
+      - NOTE: direct SQL DELETE on storage.objects is blocked by Supabase
+        (protect_delete trigger), so pg_cron CANNOT delete. Deletion lives
+        only in the API route + the save-time sweep in saveMaterial.
+        supabase/storage-cleanup.sql now provides read-only monitoring
+        views (temp_uploads_expired / temp_uploads_pending) instead.
+      - saveMaterial promotes temp files (overwrite-safe copy, deduped),
+        removes consumed temp + expired temp + orphaned permanent files.
+      - deleteMaterial now removes materi/{grade}/{slug}_files/ too.
+      - STILL NEEDED on live project: apply storage.sql + storage-cleanup.sql,
+        set SUPABASE_SERVICE_ROLE_KEY env, confirm Vercel cron fires.
+
+[x] 3. FIX PREVIEW MARKDOWN
+      - Done: preview rewrites relative refs via resolveImageSrc(url, grade)
+        when editing (?id= present); absolute URLs untouched; content state
+        never mutated. Custom image renderer shared via lib/markdown-image.ts
+        with loading skeleton (see globals.css .md-img).
+      - STILL NEEDED: visual check in browser.
+
+[x] 4. FIX INSERT IMAGE DOES NOT SAME AS THE TOP BAR
+      - Done: same white rounded wrapper (lib/markdown-image.ts) in editor
+        preview AND /materi reading page; same insert popup (Upload/Tautan)
+        from toolbar and Gambar ingredient; Sonner toasts for save success /
+        failure and upload errors (components/ui/sonner.tsx + <Toaster/>).
+      - STILL NEEDED: visual check of list thumbnails vs detail hero.
