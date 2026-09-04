@@ -16,6 +16,9 @@ TODO LIST
         only in the API route + the save-time sweep in saveMaterial.
         supabase/storage-cleanup.sql now provides read-only monitoring
         views (temp_uploads_expired / temp_uploads_pending) instead.
+        Vercel Hobby allows daily crons only, so vercel.json runs the
+        sweeper once daily (03:00 UTC) as a backstop; every save also
+        sweeps expired temp files, so active use self-cleans.
       - saveMaterial promotes temp files (overwrite-safe copy, deduped),
         removes consumed temp + expired temp + orphaned permanent files.
       - deleteMaterial now removes materi/{grade}/{slug}_files/ too.

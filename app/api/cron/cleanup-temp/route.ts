@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { TEMP_PREFIX, TEMP_TTL_MINUTES } from "@/lib/storage-paths";
 
-// Vercel cron (see vercel.json) hits this every 10 minutes to enforce the
-// 60-minute TTL on temp/upload/ drafts. This is the ONLY deleter — direct
-// SQL DELETEs on storage.objects are blocked by Supabase (protect_delete),
-// so pg_cron cannot do this job (see supabase/storage-cleanup.sql, which
-// only provides read-only monitoring views).
+// Vercel cron (see vercel.json) hits this daily as a backstop to enforce
+// the 60-minute TTL on temp/upload/ drafts (Hobby plans allow daily crons
+// only). Prompt cleanup happens on every save via the sweep inside
+// saveMaterial, so this route just catches abandoned drafts. This is the
+// ONLY deleter — direct SQL DELETEs on storage.objects are blocked by
+// Supabase (protect_delete), so pg_cron cannot do this job (see
+// supabase/storage-cleanup.sql, which only provides read-only views).
 //
 // Auth: Vercel's scheduler sends a plain GET it cannot attach a Bearer
 // header to, so it is recognized by its `vercel-cron/1.0` user agent
